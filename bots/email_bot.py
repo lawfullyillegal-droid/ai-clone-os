@@ -56,8 +56,9 @@ class EmailBot:
             print("To enable, follow setup instructions in README.md")
             return None
         
-        # TODO: Implement OAuth2 credential loading
+        # TODO: Implement OAuth2 credential loading (#1)
         # This requires setting up Google Cloud Project and OAuth consent screen
+        # Reference: https://developers.google.com/gmail/api/quickstart/python
         # For now, return None to allow bot to initialize without crashing
         print(f"Note: Credential loading not yet implemented for {path}")
         return None

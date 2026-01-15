@@ -5,13 +5,7 @@ Tests for ENS Legis Email Bot
 Part of AI Clone OS - Incrimination Nation Campaign
 """
 
-import os
-import sys
 import pytest
-
-# Add parent directory to path to import bots
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from bots.email_bot import EmailBot, CATEGORY_LEGAL, CATEGORY_MEDIA, CATEGORY_SUPPORTER, CATEGORY_VENDOR, CATEGORY_UNKNOWN
 
 
