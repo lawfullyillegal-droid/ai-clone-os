@@ -17,11 +17,14 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-# Configuration
-CONFIG_PATH = "../config/email_config.json"
-TEMPLATES_PATH = "../templates/email/"
-SURVEILLANCE_LOG_PATH = "../data/surveillance_log.json"
-MEDIA_LIST_PATH = "../config/media_list.csv"
+# Get the absolute path to the repository root
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Configuration - use absolute paths
+CONFIG_PATH = os.path.join(REPO_ROOT, "config", "email_config.json")
+TEMPLATES_PATH = os.path.join(REPO_ROOT, "templates", "email")
+SURVEILLANCE_LOG_PATH = os.path.join(REPO_ROOT, "data", "surveillance_log.json")
+MEDIA_LIST_PATH = os.path.join(REPO_ROOT, "config", "media_list.csv")
 
 # Email categories
 CATEGORY_LEGAL = "Legal"
@@ -38,15 +41,26 @@ class EmailBot:
     def __init__(self, credentials_path: str):
         """Initialize email bot with Gmail API credentials"""
         self.creds = self._load_credentials(credentials_path)
-        self.service = build('gmail', 'v1', credentials=self.creds)
+        self.service = None
+        if self.creds:
+            self.service = build('gmail', 'v1', credentials=self.creds)
         self.config = self._load_config()
         self.media_domains = self._load_media_list()
         
-    def _load_credentials(self, path: str) -> Credentials:
+    def _load_credentials(self, path: str) -> Optional[Credentials]:
         """Load Gmail API credentials"""
+        # Check if credentials file exists
+        if not os.path.exists(path):
+            print(f"Warning: Credentials file not found at {path}")
+            print("Gmail API functionality will be disabled.")
+            print("To enable, follow setup instructions in README.md")
+            return None
+        
         # TODO: Implement OAuth2 credential loading
         # This requires setting up Google Cloud Project and OAuth consent screen
-        pass
+        # For now, return None to allow bot to initialize without crashing
+        print(f"Note: Credential loading not yet implemented for {path}")
+        return None
     
     def _load_config(self) -> Dict:
         """Load email bot configuration"""
@@ -178,6 +192,10 @@ class EmailBot:
     
     def _append_to_log(self, entry: Dict):
         """Append entry to surveillance log file"""
+        # Ensure the directory exists
+        log_dir = os.path.dirname(SURVEILLANCE_LOG_PATH)
+        os.makedirs(log_dir, exist_ok=True)
+        
         log_data = []
         if os.path.exists(SURVEILLANCE_LOG_PATH):
             with open(SURVEILLANCE_LOG_PATH, 'r') as f:
@@ -204,6 +222,11 @@ class EmailBot:
         4. Log to surveillance database
         5. Mark as processed
         """
+        if not self.service:
+            print("Error: Gmail API service not initialized. Cannot process inbox.")
+            print("Please set up credentials following the instructions in README.md")
+            return
+        
         try:
             # Query for unread emails
             results = self.service.users().messages().list(
