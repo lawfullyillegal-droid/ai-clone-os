@@ -15,7 +15,7 @@ import os
 import json
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Flask, render_template, jsonify, request, send_from_directory
 from pathlib import Path
 
@@ -65,7 +65,7 @@ def get_status():
     """Get current bot status"""
     return jsonify({
         'bot_state': bot_state,
-        'timestamp': datetime.utcnow().isoformat() + 'Z'
+        'timestamp': datetime.now(timezone.utc).isoformat()
     })
 
 @app.route('/api/logs')
@@ -160,7 +160,10 @@ def start_bot():
         # Start bot in background thread
         bot_state['running'] = True
         bot_state['status'] = 'running'
-        bot_state['last_run'] = datetime.utcnow().isoformat() + 'Z'
+        bot_state['last_run'] = datetime.now(timezone.utc).isoformat()
+        
+        # Get check interval from environment or use default (5 minutes)
+        check_interval = int(os.getenv('EMAIL_CHECK_INTERVAL', 300))
         
         def run_bot():
             global bot_state
@@ -169,9 +172,9 @@ def start_bot():
                     if email_bot and email_bot.service:
                         email_bot.process_inbox(max_results=50)
                         bot_state['processed_count'] += 1
-                    bot_state['last_run'] = datetime.utcnow().isoformat() + 'Z'
-                    # Wait 5 minutes between checks
-                    time.sleep(300)
+                    bot_state['last_run'] = datetime.now(timezone.utc).isoformat()
+                    # Wait between checks (configurable via EMAIL_CHECK_INTERVAL env var)
+                    time.sleep(check_interval)
                 except Exception as e:
                     bot_state['error_count'] += 1
                     print(f"Bot error: {e}")
@@ -225,10 +228,15 @@ def process_now():
             })
         else:
             return jsonify({
-                'error': 'Gmail API not configured. Please set up credentials.'
+                'error': 'Gmail API not configured. Please set up credentials.',
+                'details': f'Place credentials.json at: {os.getenv("GMAIL_CREDENTIALS_PATH", "credentials.json")}',
+                'help': 'See DEPLOYMENT.md for Gmail API setup instructions'
             }), 400
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'error': f'Failed to process emails: {str(e)}',
+            'help': 'Check logs and verify Gmail API credentials are configured correctly'
+        }), 500
 
 @app.route('/api/config', methods=['GET', 'POST'])
 def manage_config():

@@ -31,9 +31,10 @@ ENV PYTHONUNBUFFERED=1
 # Expose port for dashboard
 EXPOSE 5000
 
-# Health check
+# Health check using curl
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:5000/api/status')" || exit 1
+    CMD curl -f http://localhost:5000/api/status || exit 1
 
 # Run dashboard by default
 CMD ["python", "dashboard.py"]

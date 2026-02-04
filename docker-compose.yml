@@ -21,8 +21,9 @@ services:
       - GMAIL_CREDENTIALS_PATH=/app/credentials.json
       # Optional: Set a secure secret key
       - FLASK_SECRET_KEY=${FLASK_SECRET_KEY:-change-this-in-production}
-    env_file:
-      - .env.example
+    # Uncomment to use .env file (copy from .env.example first)
+    # env_file:
+    #   - .env
     restart: unless-stopped
     networks:
       - ens-legis-network
