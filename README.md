@@ -14,6 +14,7 @@ This repository contains the **ENS Legis Digital Clone Operating System**, a com
 - **Legal Automation**: Document assembly for FCRA complaints, preservation demands, and FOIA requests
 - **Surveillance & Analytics**: Evidence logging, docket monitoring, and analytics tracking
 - **Content Distribution**: YouTube uploads, blog posts, and merchandise promotions
+- **Interactive Dashboard**: Web-based control panel for monitoring and operating the AI clone
 
 ---
 
@@ -34,22 +35,26 @@ ai-clone-os/
 │   ├── social_config.json   # Social media credentials (TODO)
 │   └── media_list.csv       # Known media outlet domains (TODO)
 │
-├── templates/               # Response templates (TODO)
-│   ├── email/
+├── templates/               # Response templates
+│   ├── email/               # Email templates
 │   │   ├── FCRA-Initial-Guidance.txt
 │   │   ├── Media-Inquiry-Response.txt
 │   │   └── Thank-You-Patron.txt
-│   └── legal/
-│       ├── FCRA-Complaint-Template.docx
-│       └── Preservation-Demand-Template.docx
+│   ├── legal/               # Legal document templates (TODO)
+│   │   ├── FCRA-Complaint-Template.docx
+│   │   └── Preservation-Demand-Template.docx
+│   └── dashboard.html       # Interactive dashboard UI
 │
 ├── data/                    # Evidence & logs (gitignored)
 │   ├── surveillance_log.json
 │   └── evidence_ledger/
 │
-├── scripts/                 # Deployment & utility scripts (TODO)
-│   ├── deploy.sh
-│   └── setup_credentials.py
+├── dashboard.py             # Interactive web dashboard (NEW)
+├── deploy.sh                # Deployment script (NEW)
+├── Dockerfile               # Docker container definition (NEW)
+├── docker-compose.yml       # Docker Compose configuration (NEW)
+├── .env.example             # Environment variables template (NEW)
+├── DEPLOYMENT.md            # Deployment guide (NEW)
 │
 └── README.md                # This file
 ```
@@ -58,14 +63,32 @@ ai-clone-os/
 
 ## 🚀 Quick Start
 
+### Deploy with Interactive Dashboard (Recommended)
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/lawfullyillegal-droid/ai-clone-os.git
+cd ai-clone-os
+
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your credentials
+
+# 3. Deploy with Docker
+./deploy.sh
+```
+
+Dashboard will be available at: **http://localhost:5000**
+
 ### Prerequisites
 
-- Python 3.9+
-- Gmail account with API access enabled
-- Google Cloud Project with Gmail API enabled
+- **Docker** and **Docker Compose** (for dashboard deployment)
+- Python 3.9+ (for local development)
+- Gmail account with API access enabled (optional, for email features)
+- Google Cloud Project with Gmail API enabled (optional)
 - (Optional) Social media API credentials (Twitter, LinkedIn, Facebook)
 
-### Installation
+### Manual Installation
 
 ```bash
 # Clone the repository
@@ -75,9 +98,8 @@ cd ai-clone-os
 # Install dependencies
 pip install -r requirements.txt
 
-# Set up configuration (see Configuration section below)
-cp config/email_config.example.json config/email_config.json
-# Edit config/email_config.json with your settings
+# Run the dashboard
+python dashboard.py
 ```
 
 ### Configuration
@@ -100,6 +122,35 @@ cp config/email_config.example.json config/email_config.json
 export GMAIL_CREDENTIALS_PATH="./credentials.json"
 export SURVEILLANCE_LOG_PATH="./data/surveillance_log.json"
 ```
+
+---
+
+## 🖥 Interactive Dashboard
+
+**Status**: ✅ Implemented
+
+A web-based control panel for monitoring and operating the AI Clone OS:
+
+**Features**:
+- Real-time bot status monitoring
+- Start/Stop email bot with one click
+- Surveillance log viewer with filtering
+- Email processing statistics and charts
+- Manual email processing trigger
+- Configuration management interface
+
+**Access**: http://localhost:5000 (after deployment)
+
+**Usage**:
+```bash
+# Start dashboard with Docker
+./deploy.sh
+
+# Or run directly
+python dashboard.py
+```
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)
 
 ---
 

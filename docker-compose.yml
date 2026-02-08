@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  dashboard:
+    build: .
+    container_name: ens-legis-dashboard
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount data directory for persistent storage
+      - ./data:/app/data
+      # Mount config directory for configuration
+      - ./config:/app/config
+      # Mount templates for easy updates
+      - ./templates:/app/templates
+    environment:
+      - DASHBOARD_HOST=0.0.0.0
+      - DASHBOARD_PORT=5000
+      - FLASK_DEBUG=false
+      # Gmail API credentials (set these in .env file)
+      - GMAIL_CREDENTIALS_PATH=/app/credentials.json
+      # Optional: Set a secure secret key
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY:-change-this-in-production}
+    # Uncomment to use .env file (copy from .env.example first)
+    # env_file:
+    #   - .env
+    restart: unless-stopped
+    networks:
+      - ens-legis-network
+
+  # Optional: Redis for future task queue functionality
+  redis:
+    image: redis:7-alpine
+    container_name: ens-legis-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - ens-legis-network
+
+networks:
+  ens-legis-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local
